@@ -1,0 +1,58 @@
+{
+  "name": "@wgtechlabs/summary-engine",
+  "version": "0.1.0",
+  "description": "Deterministic summary extraction and title generation for support integrations.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./presets": {
+      "types": "./dist/presets.d.ts",
+      "import": "./dist/presets.js"
+    }
+  },
+  "bin": {
+    "summary-engine": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0 || ^26.0.0",
+    "bun": ">=1.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "preview": "bun run src/cli.ts",
+    "prepare": "bun run build"
+  },
+  "keywords": [
+    "summary",
+    "title",
+    "support",
+    "ticket",
+    "deterministic",
+    "telegram",
+    "whatsapp",
+    "discord"
+  ],
+  "author": "WG Tech Labs <opensource@wgtechlabs.com>",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.8.0"
+  }
+}
