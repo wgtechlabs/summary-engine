@@ -18,11 +18,7 @@
   "bin": {
     "summary-engine": "./dist/cli.js"
   },
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
+  "files": ["dist", "README.md", "LICENSE"],
   "engines": {
     "node": "^22.0.0 || ^24.0.0 || ^26.0.0",
     "bun": ">=1.0.0"
