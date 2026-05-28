@@ -61,9 +61,13 @@ function compactSummary(input: string, config: SummaryEngineConfig): string {
   let text = input.trim();
 
   text = text
+    .replace(/^\s*(a|an)\s+subset\s+of\s+users\s+(are|were|have|had)\s+/i, "")
     .replace(/^\s*(a|an)\s+subset\s+of\s+users\s+/i, "")
+    .replace(/^\s*(some|many|several)\s+users\s+(are|were|have|had)\s+/i, "")
     .replace(/^\s*(some|many|several)\s+users\s+/i, "")
-    .replace(/^\s*users\s+/i, "");
+    .replace(/^\s*users\s+(are|were|have|had)\s+/i, "")
+    .replace(/^\s*users\s+/i, "")
+    .replace(/^\s*our\s+team\s+(is|are|was|were|has|have)\s+/i, "");
 
   const causalSplit = text.split(config.causalSplitPattern);
   if (causalSplit[0]) {
@@ -86,7 +90,15 @@ function scoreClause(input: string, config: SummaryEngineConfig): number {
     }
   }
 
-  if (/\b(cannot|can't|unable|failed|error|timeout|locked)\b/.test(lowered)) {
+  if (
+    /\b(cannot|can't|unable|fail(ed|ing|s)?|error|timeout|locked|crash(es|ed|ing)?|broken|invalid|incorrect)\b/.test(
+      lowered,
+    )
+  ) {
+    score += 3;
+  }
+
+  if (/\b(time[sd]?|timing)\s+out\b/.test(lowered)) {
     score += 3;
   }
 
@@ -133,7 +145,7 @@ function extractSummaryInternal(summary: string, config: SummaryEngineConfig): s
 
   for (const segment of segments) {
     const clauses = segment
-      .split(/[,|]+|\s+-\s+|\s+and\s+/i)
+      .split(/[,|]+|\s+-\s+|\s+(?:and|but)\s+/i)
       .map((clause) => cleanClause(clause, config))
       .filter(Boolean);
 
@@ -141,6 +153,19 @@ function extractSummaryInternal(summary: string, config: SummaryEngineConfig): s
       candidates.push(...clauses);
     } else {
       candidates.push(cleanClause(segment, config));
+    }
+
+    const causalParts = segment.split(config.causalSplitPattern);
+    if (causalParts.length >= 3) {
+      for (let i = 2; i < causalParts.length; i += 2) {
+        const tail = causalParts[i]?.trim();
+        if (tail) {
+          const cleaned = cleanClause(stripLeadingFiller(tail, config), config);
+          if (cleaned) {
+            candidates.push(cleaned);
+          }
+        }
+      }
     }
   }
 
@@ -156,7 +181,7 @@ function extractSummaryInternal(summary: string, config: SummaryEngineConfig): s
   const best = filtered
     .map((candidate) => ({
       candidate,
-      score: scoreClause(candidate, config)
+      score: scoreClause(candidate, config),
     }))
     .sort((a, b) => b.score - a.score)[0]?.candidate;
 
@@ -180,7 +205,7 @@ function normalizeCustomer(customerName: string | undefined): string {
 export function createEngine(overrides: Partial<SummaryEngineConfig> = {}): SummaryEngine {
   const config: SummaryEngineConfig = {
     ...defaultConfig,
-    ...overrides
+    ...overrides,
   };
 
   return {
@@ -201,22 +226,22 @@ export function createEngine(overrides: Partial<SummaryEngineConfig> = {}): Summ
       if (normalizedCustomer && !isUnknown) {
         return truncateAtWordBoundary(
           `${config.prefix} ${normalizeText(input.customerName ?? "")} - ${config.fallbackSuffix}`,
-          config.maxTitleLength
+          config.maxTitleLength,
         );
       }
 
       return `${config.prefix} ${config.fallbackNewTicket}`;
-    }
+    },
   };
 }
 
-export function extractSummary(summary: string, config?: Partial<SummaryEngineConfig>): string | null {
+export function extractSummary(
+  summary: string,
+  config?: Partial<SummaryEngineConfig>,
+): string | null {
   return createEngine(config).extractSummary(summary);
 }
 
-export function buildTitle(
-  input: BuildTitleInput,
-  config?: Partial<SummaryEngineConfig>
-): string {
+export function buildTitle(input: BuildTitleInput, config?: Partial<SummaryEngineConfig>): string {
   return createEngine(config).buildTitle(input);
 }

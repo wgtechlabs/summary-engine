@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { createInterface } from "node:readline/promises";
 import { stdin as input, stdout as output } from "node:process";
+import { createInterface } from "node:readline/promises";
 import { buildTitle, extractSummary } from "./engine.js";
 import { discordPreset, telegramPreset, whatsappPreset } from "./presets.js";
 import type { SummaryEngineConfig } from "./types.js";
@@ -57,7 +57,8 @@ async function main(): Promise<void> {
   const rl = createInterface({ input, output });
   const summary = await rl.question("Issue details: ");
   const customer = (await rl.question("Customer name (optional): ")).trim() || customerArg;
-  const platform = (await rl.question("Platform (telegram|whatsapp|discord): ")).trim() || platformArg;
+  const platform =
+    (await rl.question("Platform (telegram|whatsapp|discord): ")).trim() || platformArg;
   rl.close();
 
   const interactivePreset = resolvePreset(platform);

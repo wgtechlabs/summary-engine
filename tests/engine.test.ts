@@ -8,7 +8,7 @@ describe("summary extraction", () => {
       "we enabled 2FA for security, but OTP emails are not arriving for two users in our workspace, and both are now locked out of the platform.";
 
     expect(extractSummary(summary, telegramPreset)).toBe(
-      "OTP emails are not arriving for two users in our workspace"
+      "OTP emails are not arriving for two users in our workspace",
     );
   });
 
@@ -26,9 +26,9 @@ describe("title building", () => {
       {
         summary:
           "I need help with my account login, I can't login for some reason, please help me.",
-        customerName: "Acme Corp"
+        customerName: "Acme Corp",
       },
-      telegramPreset
+      telegramPreset,
     );
 
     expect(title).toBe("[Telegram] Can't login");
@@ -38,9 +38,9 @@ describe("title building", () => {
     const title = buildTitle(
       {
         summary: "help",
-        customerName: "Acme Corp"
+        customerName: "Acme Corp",
       },
-      whatsappPreset
+      whatsappPreset,
     );
 
     expect(title).toBe("[WhatsApp] Acme Corp - Support Request");
@@ -50,9 +50,9 @@ describe("title building", () => {
     const title = buildTitle(
       {
         summary: "help",
-        customerName: "Unknown Company"
+        customerName: "Unknown Company",
       },
-      telegramPreset
+      telegramPreset,
     );
 
     expect(title).toBe("[Telegram] New Support Ticket");
